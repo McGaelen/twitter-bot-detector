@@ -30,6 +30,15 @@ export interface TwitterUser {
   statuses_count: number;
   default_profile: boolean;
   default_profile_image: boolean;
+  profile_banner_url: string;
 }
 
 export type TwitterUsersLookupResponse = TwitterUser[];
+
+// Ratings object ----------------------------
+export interface BotRating {
+  score: number;
+  isBot: boolean;
+}
+
+export type TwitterUserWithRating = TwitterUser & BotRating;

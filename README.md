@@ -17,7 +17,10 @@
     "friends_count": 25
 
 * If they have the default profile picture.
-    "profile_image_url_https": "https:\/\/abs.twimg.com\/sticky\/default_profile_images\/default_profile_normal.png"
+    "default_profile_image": true
+    
+* If they haven't altered the theme or background of their profile.
+    "default_profile": true
 
 * If they don't have a cover photo.
-    "profile_background_image_url_https": null
+    "profile_banner_url": null

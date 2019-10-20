@@ -1,7 +1,7 @@
 import {
   TwitterFollowersIdsResponse, TwitterUser,
   TwitterUsersLookupResponse
-} from "./models/twitter-responses";
+} from "../types";
 import {defer, Observable} from "rxjs";
 import {Twitter} from "twitter-node-client"
 import {config} from 'dotenv';
@@ -39,9 +39,7 @@ export class TwitterFollowersService {
     return new Promise((resolve, reject) => {
       console.log('Getting user IDs...');
       this.twitter.getFollowersIds({screen_name: screenName, stringify_ids: true},
-          (err, response, body) => {
-            reject(err);
-          },
+          (err, response, body) => reject(err),
           (response: string) => {
             let data: TwitterFollowersIdsResponse = JSON.parse(response);
             console.log(`Got ${data.ids.length} ids.`);
@@ -57,10 +55,7 @@ export class TwitterFollowersService {
 
       this.twitter.getCustomApiCall('/users/lookup.json', {user_id: idsStr},
           (err, response, body) => reject(err),
-          (response: string) => {
-            let data: TwitterUsersLookupResponse = JSON.parse(response);
-            resolve(data);
-          });
+          (response: string) => resolve(JSON.parse(response)));
     });
   }
 
