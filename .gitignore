@@ -3,3 +3,4 @@ node_modules
 dist
 .twitter-bot-detector.env
 output.txt
+twitter-bot-detector-service-account.json
