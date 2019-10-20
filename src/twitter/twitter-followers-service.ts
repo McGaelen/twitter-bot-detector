@@ -21,31 +21,30 @@ export class TwitterFollowersService {
     });
   }
 
-  getFollowersDataSampleForUser(screenName: string): Observable<any | TwitterUser[]> {
+  getFollowersDataSampleForUser(screenName: string): Observable<TwitterUser[]> {
     return defer(async () => {
       const result: TwitterUser[] = [];
       const chunkedIds = this.getChunkedArray(
           100,
           await this.getFollowersIdsForUser(screenName));
-      console.log('chunked ids: ', chunkedIds.length);
       for (const chunk of chunkedIds) {
-        const vals = await this.getUsersLookup(chunk);
-        console.log(`pushing ${vals.length} to users array`);
-        result.push(...vals);
+        result.push(...await this.getUsersLookup(chunk));
+        console.log(`User data retrieved for ${result.length} users`);
       }
       return result;
     });
   }
 
-
   private getFollowersIdsForUser(screenName: string): Promise<string[]> {
     return new Promise((resolve, reject) => {
+      console.log('Getting user IDs...');
       this.twitter.getFollowersIds({screen_name: screenName, stringify_ids: true},
           (err, response, body) => {
             reject(err);
           },
           (response: string) => {
             let data: TwitterFollowersIdsResponse = JSON.parse(response);
+            console.log(`Got ${data.ids.length} ids.`);
             resolve(data.ids);
           });
     })
