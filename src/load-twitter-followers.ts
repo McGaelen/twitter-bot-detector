@@ -1,24 +1,32 @@
 import {TwitterFollowersService} from "./twitter/twitter-followers-service";
-import {BotRating, TwitterUser, TwitterUserWithRating} from "./types";
+import {BotRating, TwitterUser, TwitterUserWithRating} from "../types";
 import {BigQuery} from "@google-cloud/bigquery";
+import {CREATE_TRAINING_TABLE_OPTIONS, DATASET, TRAINING_DATA_TABLE} from "./bigquery/bigquery-constants";
 
 
 class Main {
-  private readonly USERNAME = 'McGaelen';
+  private readonly USERNAME = 'realDonaldTrump';
 
   constructor(private twitterService: TwitterFollowersService, private bigQueryClient: BigQuery) {
-    this.twitterService.getFollowersDataSampleForUser(this.USERNAME).subscribe(
-        users => this.processTwitterUserData(users),
-        err => this.errorHandler(err));
+    this.main();
   }
 
-  private async processTwitterUserData(users: TwitterUser[]) {
+  private async main() {
+    try {
+      const users = await this.twitterService.getFollowersDataSampleForUser(this.USERNAME);
+      this.processTwitterUserData(users);
+    } catch (err) {
+      this.errorHandler(err);
+    }
+  }
+
+  private processTwitterUserData(users: TwitterUser[]) {
     const ratings: TwitterUserWithRating[] = [];
     console.log(`\nScores\n=====================`);
 
     users.forEach(user => {
       const score = this.calculateBotScore(user);
-      const rating: BotRating = {score: score, isBot: score < 0};
+      const rating: BotRating = {isBot: score < 0};
 
       const twitterUserRating: TwitterUserWithRating = Object.assign(user, rating);
       ratings.push(twitterUserRating);
@@ -44,7 +52,7 @@ class Main {
 
   private printResultsToConsole(ratings: TwitterUserWithRating[]) {
     const printableTable = ratings.map(twitterUser => {
-      return { 'Handle': twitterUser.screen_name, 'Score': twitterUser.score, 'Bot?': twitterUser.isBot };
+      return { 'Handle': twitterUser.screen_name, 'Bot?': twitterUser.isBot };
     });
     console.table(printableTable);
   }
@@ -52,16 +60,23 @@ class Main {
   private async sendToBigQuery(ratings: TwitterUserWithRating[]) {
     console.log(`\nSending to BigQuery...`);
     try {
-      await this.bigQueryClient
-          .dataset('bot_user_training_data')
-          .table('users')
-          .insert(ratings);
+      const tableExists = await this.bigQueryClient.dataset(DATASET).table(TRAINING_DATA_TABLE).exists();
+      if (tableExists) {
+        await this.bigQueryClient
+            .dataset(DATASET)
+            .table(TRAINING_DATA_TABLE)
+            .delete();
+      }
+      const [table] = await this.bigQueryClient
+          .dataset(DATASET)
+          .createTable(TRAINING_DATA_TABLE, CREATE_TRAINING_TABLE_OPTIONS);
+      await table.insert(ratings);
       console.log('Done sending to BigQuery.');
     } catch (err) {
       err.errors.forEach(error => {
         console.log(JSON.stringify(error.errors));
-      })
-      // this.errorHandler(err);
+      });
+      process.exit(1);
     }
   }
 

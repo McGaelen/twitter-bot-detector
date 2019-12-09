@@ -5,7 +5,7 @@
   "main": "src/load-twitter-followers.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rm -rf dist && tsc -outDir dist",
+    "build": "rm -rf dist && tsc",
     "load-twitter-followers": "npm run build && GOOGLE_APPLICATION_CREDENTIALS=twitter-bot-detector-service-account.json node dist/load-twitter-followers.js"
   },
   "author": "",
@@ -14,7 +14,6 @@
     "@google-cloud/bigquery": "^4.3.0",
     "@types/node": "^12.7.12",
     "dotenv": "^8.2.0",
-    "rxjs": "^6.5.3",
     "twitter-node-client": "0.0.6",
     "typescript": "^3.6.4"
   }

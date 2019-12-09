@@ -37,7 +37,6 @@ export type TwitterUsersLookupResponse = TwitterUser[];
 
 // Ratings object ----------------------------
 export interface BotRating {
-  score: number;
   isBot: boolean;
 }
 
