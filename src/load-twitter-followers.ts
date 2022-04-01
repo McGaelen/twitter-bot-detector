@@ -5,7 +5,8 @@ import {CREATE_TRAINING_TABLE_OPTIONS, DATASET, TRAINING_DATA_TABLE} from "./big
 
 
 class Main {
-  private readonly USERNAME = 'realDonaldTrump';
+  // @Twitter - Twitter's Twitter account
+  private readonly USERNAME = 'Twitter';
 
   constructor(private twitterService: TwitterFollowersService, private bigQueryClient: BigQuery) {
     this.main();
